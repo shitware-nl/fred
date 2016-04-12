@@ -6,7 +6,7 @@ namespace Rsi;
  *  Basic object.
  *
  *  By making use of the magic getter and setter it is not necessary to define a specific getter and setter for every property
- *  upfront. All properties can be uesed as normal properties (that is: without using getXxx() and setXxx() functions). A
+ *  upfront. All properties can be used as normal properties (that is: without using getXxx() and setXxx() functions). A
  *  property which first was public can be made private/protected, after which it is possible to use a specific getter and/or
  *  setter. Private properties can also be published, which makes it unnecessary to create a specic getter and/or setter.
  */
