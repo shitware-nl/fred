@@ -16,6 +16,10 @@ error_reporting(E_ALL);
  */
 class Fred extends Object{
 
+  const EVENT_HALT = 'fred:halt';
+  const EVENT_EXTERNAL_ERROR = 'fred:externalError';
+  const EVENT_SHUTDOWN = 'fred:shutdown';
+
   public $debug = false; //!<  True for debug modus.
   public $autoloadCacheKey = 'autoloadCache'; //!<  Session key for missing classnames cache.
   public $autoloadMissingKey = 'autoloadMissing'; //!<  Session key for missing classnames cache.
@@ -123,7 +127,7 @@ class Fred extends Object{
    *  @param int|string $status  Value to pass to the exit() function.
    */
   public function halt($status = null){
-    if($this->event->trigger('fred:halt',$this,$status) !== false) exit($status);
+    if($this->event->trigger(self::EVENT_HALT,$this,$status) !== false) exit($status);
   }
   /**
    *  Separate objects.
@@ -169,7 +173,7 @@ class Fred extends Object{
       exit('External error');
     }
     $this->log->notice('External error: ' . $message,$context);
-    if($this->event->trigger('fred:externalError',$this,$message) !== false){
+    if($this->event->trigger(self::EVENT_EXTERNAL_ERROR,$this,$message) !== false){
       http_response_code(400); //Bad Request
       $this->halt();
     }
@@ -237,7 +241,7 @@ class Fred extends Object{
    *  @see internalError()
    */
   public function shutdownFunction(){
-    if(!$this->_internalError && ($error = error_get_last()) && (substr($error['message'],0,10) != 'SOAP-ERROR') && ($this->event->trigger('fred:shutdown',$this,$error) !== false))
+    if(!$this->_internalError && ($error = error_get_last()) && (substr($error['message'],0,10) != 'SOAP-ERROR') && ($this->event->trigger(self::EVENT_SHUTDOWN,$this,$error) !== false))
       $this->internalError($error['message'],$error['file'],$error['line']);
   }
   /**
