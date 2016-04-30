@@ -83,7 +83,7 @@ class Object{
     }
     if(property_exists($this,$key)) return $this->$key;
     if(method_exists($this,$func_name = 'get' . ucfirst($key))) return call_user_func([$this,$func_name]);
-    if(Record::get($this->_published,$key) & self::READABLE){
+    if(array_key_exists($key,$this->_published) && ($this->_published[$key] & self::READABLE)){
       $property = '_' . $key;
       return $this->$property;
     }
@@ -104,7 +104,7 @@ class Object{
     if(is_array($key)) foreach($key as $sub => $value) $this->set($sub,$value);
     elseif(property_exists($this,$key)) $this->$key = $value;
     elseif(method_exists($this,$func_name = 'set' . ucfirst($key))) call_user_func([$this,$func_name],$value);
-    elseif(Record::get($this->_published,$key) & self::WRITEABLE){
+    elseif(array_key_exists($key,$this->_published) && ($this->_published[$key] & self::WRITEABLE)){
       $property = '_' . $key;
       $this->$property = $value;
     }

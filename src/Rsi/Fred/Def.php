@@ -30,6 +30,7 @@ class Def extends Component{
           Widget::REQUIRED => (bool)$column['required'],
           Widget::DEFAULT_VALUE => $column['default']
         ];
+        if($column['primary']) $def['primary'] = true;
         $type = $column['type'];
         if(substr($type,-3) == 'int'){
           $def['type'] = 'number';
@@ -76,6 +77,16 @@ class Def extends Component{
    */
   public function table($table){
     return \Rsi\Record::iget($this->def,$table);
+  }
+  /**
+   *  Primary key columns.
+   *  @param string $table
+   *  @return array
+   */
+  public function key($table){
+    $key = [];
+    foreach($this->table($table) as $column => $def) if(\Rsi\Record::get($def,'primary')) $key[] = $column;
+    return $key;
   }
   /**
    *  Column definition.

@@ -19,7 +19,7 @@ class Entity extends Component{
    *  @return object  Entity.
    */
   public function item($type,$id){
-    if(!array_key_exists($type,$this->_entities)) $this->_entities[$type] = [];
+    \Rsi\Record::add($this->_entities,$type,[]);
     if(array_key_exists($id,$this->_entities[$type])) return $this->_entities[$type][$id];
     $this->component('log')->debug("Creating entity $type:$id",__FILE__,__LINE__);
     $reflect = new \ReflectionClass(\Rsi\Record::get($this->classNames,$type,$this->defaultNamespace . '\\' . ucfirst($type)));

@@ -19,7 +19,7 @@ class File extends \Rsi\Fred\Log\Handler{
         "Message: $message\n" .
         "Prio: $prio\n";
       foreach($context as $key => $value) $message .= ucfirst($key) . ': ' . print_r($value,true) . "\n";
-      \Rsi\File::mkdir(dirname($this->filename),0777,true);
+      \Rsi\File::mkdir(\Rsi\File::dirname($this->filename),0777,true);
       file_put_contents($this->filename,$message . $this->separator,FILE_APPEND);
     }
     catch(\Exception $e){

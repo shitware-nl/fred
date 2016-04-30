@@ -14,7 +14,7 @@ class Event extends Component{
    *  @param function $callback  Callback function (first parameter must be the sender; others are event specific).
    */
   public function listen($name,$callback){
-    if(!array_key_exists($name,$this->_events)) $this->_events[$name] = [];
+    \Rsi\Record::add($this->_events,$name,[]);
     $this->_events[$name][] = $callback;
   }
   /**
