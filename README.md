@@ -11,7 +11,7 @@ HTML).
 All configuration is done through PHP files / arrays. No exotic file formats
 that have to be parsed, cached, and cleared upon changes.
 
-## Security
+### Security
 
 There are several security checks in place. All forms and async calls are
 automaticly protected from CSRF. All output is automaticly escaped to prevent
@@ -19,12 +19,12 @@ XSS (unless explicitly excluded). All security related actions are protected
 agains brute-force attacks. Users that break to many security checks within a
 certain amount of time are automaticly banned.
 
-## Widgets
+### Widgets
 
 TODO: Form field widgets including client-side javascript support (to off load
 as much as possible to the client).
 
-## Multi factor authentication
+### Multi factor authentication
 
 TODO: Necessary authentications can be set per contorller. Multiple
 combinations of authenticators can be set (e.g. subnet + password, or password +
