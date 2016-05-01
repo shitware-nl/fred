@@ -32,3 +32,5 @@ mail token for users outside the company subnet).
 
 Access rights can be set on multiple levels (r/w/x - and every other letter),
 for every controller, action, and even widget.
+
+See [fred.shitware.nl](http://fred.shitware.nl)
