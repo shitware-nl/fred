@@ -35,7 +35,7 @@ class Fred extends Object{
   protected $_config = []; //!<  The configuration.
   protected $_internalError = false; //!<  True if an internal error has (already) occured.
 
-  protected $_autoloadNamespaces = [__NAMESPACE__ => [__DIR__]]; //!<  Autoload namespace prefix (key) en paths (value).
+  protected $_autoloadNamespaces = []; //!<  Autoload namespace prefix (key) en paths (value).
   protected $_autoloadClasses = []; //!<  Autoload classes (key) and files (value).
   protected $_autoloadFiles = []; //!<  Autoload files (if not covered by the previous options).
   protected $_autoloadCache = []; //!<  Register direct location of class files.

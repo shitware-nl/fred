@@ -7,7 +7,7 @@ namespace Rsi\Fred;
  */
 class Db extends Component{
 
-  const OPEN = 'db:open';
+  const EVENT_OPEN = 'db:open';
 
   public $queryCount = 0;
   public $queryTime = 0;
@@ -41,7 +41,7 @@ class Db extends Component{
         \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true
       ] as $attribute => $value)
         $this->_pdo->setAttribute($attribute,$value);
-      $this->_fred->event->trigger(self::OPEN,$this,$this->_pdo);
+      $this->_fred->event->trigger(self::EVENT_OPEN,$this,$this->_pdo);
     }
     return $this->_pdo;
   }
@@ -492,6 +492,10 @@ class Db extends Component{
 
   public function __invoke($sql,$args = null){
     return $this->execute($sql,$args);
+  }
+
+  public function __sleep(){
+    return [];
   }
 
 }
