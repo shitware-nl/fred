@@ -14,7 +14,8 @@ class File extends \Rsi\Fred\Log\Handler{
       $message =
         "\n\n" . (\Rsi::commandLine() ? '' :
         "Request: {$_SERVER['REQUEST_METHOD']} {$_SERVER['REQUEST_URI']} {$_SERVER['SERVER_PROTOCOL']}\n" .
-        "Remote addr: {$_SERVER['REMOTE_ADDR']}\n") .
+        "Remote addr: {$_SERVER['REMOTE_ADDR']}\n" .
+        (array_key_exists('HTTP_USER_AGENT',$_SERVER) ? "User agent: {$_SERVER['HTTP_USER_AGENT']}\n" : '')) .
         "Date/time: " . date('Y-m-d H:i:s') . "\n" .
         "Message: $message\n" .
         "Prio: $prio\n";

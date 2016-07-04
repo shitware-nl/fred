@@ -117,10 +117,11 @@ class Fred extends Object{
   }
   /**
    *  Error handler.
-   *  Throws an exception to get a unified error handling.
+   *  Throws an exception to get a unified error handling. Errors that are suppressed are only logged.
    */
   public function errorHandler($error_no,$message,$filename,$line_no,$context = null){
-    throw new \ErrorException($message,$error_no,0,$filename,$line_no);
+    if(error_reporting()) throw new \ErrorException($message,$error_no,0,$filename,$line_no);
+    elseif($this->_initialized) $this->log->error($message,$filename,$line_no);
   }
   /**
    *  End the request.
@@ -187,13 +188,19 @@ class Fred extends Object{
    */
   public function internalError($message,$filename = null,$line_no = null,$trace = null){
     try{
-      if(!$trace) $trace = debug_backtrace();
       if(ob_get_length()) ob_clean();
       $objects = [];
-      $this->stripTraceObjects($trace,$objects);
+      if($this->debug && (strpos($message,'Undefined variable: ') === 0)){
+        $this->_internalError = true;
+        $trace = false;
+      }
+      else{
+        if(!$trace) $trace = debug_backtrace();
+        $this->stripTraceObjects($trace,$objects);
+      }
       if($this->_internalError){
         if($this->debug){
-          print($message);
+          print("<pre>\n\n$message ($filename:$line_no)\n\n");
           print_r($trace);
           print_r($objects);
         }
