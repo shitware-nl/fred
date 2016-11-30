@@ -28,10 +28,12 @@ class Fred extends Object{
 
   public $templatePath = null; //!<  Path for the framework templates.
   public $version = null; //!<  Project version.
+  public $stripObjectsMemoryLimit = 1048576;
 
   protected $_startTime = null; //!<  Time at which the request started.
   protected $_initialized = false; //!<  True if the framework is initialised.
   protected $_releaseNotesFile = __DIR__ . '/../../doc/pages/notes.php';
+  protected $_releaseNotesInterval = 1000; //!<  Chance for checking release notes when not in debug mode.
   protected $_config = []; //!<  The configuration.
   protected $_internalError = false; //!<  True if an internal error has (already) occured.
 
@@ -44,7 +46,7 @@ class Fred extends Object{
 
   /**
    *  Initialize the framework.
-   *  @param string|array $config  The configuratie. In case of a string, the file with this name will be included.
+   *  @param string|array $config  The configuration. In case of a string, the file with this name will be included.
    */
   public function __construct($config){
     try{
@@ -63,6 +65,7 @@ class Fred extends Object{
   protected function init(){
     $this->configure($this->_config);
     ini_set('display_errors',$this->debug);
+    if(!preg_match('/^[\\w,\\-]{0,100}$/',session_id())) exit('Invalid session');
     set_error_handler([$this,'errorHandler']);
     set_exception_handler([$this,'exceptionHandler']);
     register_shutdown_function([$this,'shutdownFunction']);
@@ -138,6 +141,7 @@ class Fred extends Object{
    */
   protected function stripObjects(&$item,&$objects,$level = 0){
     if(is_object($item)){
+      if(memory_get_usage() > $this->stripObjectsMemoryLimit) $item = 'out of memory';
       $objects[$key = '@@object_' . md5(print_r($item,true)) . '@@'] = $item;
       $item = $key;
     }
@@ -214,6 +218,7 @@ class Fred extends Object{
           'lineNo' => $line_no,
           'trace' => $trace,
           'objects' => $objects,
+          'headers' => getallheaders(),
           'GET' => $_GET,
           'POST' => $_POST,
           'COOKIE' => $_COOKIE,
@@ -223,14 +228,14 @@ class Fred extends Object{
         http_response_code(500);
         if(file_exists($template = $this->templatePath . 'error.php')) require($template);
       }
-      catch(Exception $e){
+      catch(\Exception $e){
         print('An unexpected error has occurred');
       }
       elseif(!\Rsi::commandLine() && file_exists($template = $this->templatePath . 'debug.php')) require($template);
       else print($message . "\n\n");
       $this->halt();
     }
-    catch(Exception $e){ //de default exception handler wordt niet nogmaals aangeroepen bij een unhandled exception
+    catch(\Exception $e){ //the default exception handler is not called again on an unhandled exception
       $this->internalError($e->getMessage(),$e->getFile(),$e->getLine(),$e->getTrace());
     }
   }
@@ -257,6 +262,7 @@ class Fred extends Object{
   public function releaseNotes(){
     if(
       $this->_releaseNotesFile &&
+      ($this->debug || !rand(0,$this->_releaseNotesInterval)) &&
       ($time = \Rsi\File::mtime($this->_releaseNotesFile)) &&
       ($time != \Rsi\Record::get($_SESSION,'releaseNotesTime')) &&
       preg_match_all('/\\n- ([\\d\\.]+): (.*)/',file_get_contents($this->_releaseNotesFile),$matches,PREG_SET_ORDER)
@@ -270,9 +276,9 @@ class Fred extends Object{
       if($messages){
         foreach($messages as $message){
           $this->message->warning($message);
-          $this->log->warning($message);
+          $this->log->warning($message,__FILE__,__LINE__);
         }
-        $this->log->notice("Upgraded to FRED version $version.");
+        $this->log->notice("Upgraded to FRED version $version.",__FILE__,__LINE__);
       }
       else $_SESSION['releaseNotesTime'] = $time;
     }

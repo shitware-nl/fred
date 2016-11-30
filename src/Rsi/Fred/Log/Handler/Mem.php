@@ -41,10 +41,9 @@ class Mem extends \Rsi\Fred\Log\Handler{
       $log['db'] = ['count' => $db->queryCount,'time' => $db->queryTime];
     }
     if(!$this->filename) $this->filename = \Rsi\File::tempDir() . 'log.dat';
-    $logs = is_file($this->filename) ? unserialize(file_get_contents($this->filename)) : [];
-    $logs = array_slice($logs,1 - $this->save);
+    $logs = array_slice(\Rsi\File::unserialize($this->filename,[]),1 - $this->save);
     $logs[] = $log;
-    file_put_contents($this->filename,serialize($logs));
+    \Rsi\File::serialize($this->filename,$logs);
   }
 
 }
