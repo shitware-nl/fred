@@ -41,6 +41,7 @@ class Fred extends Object{
   protected $_autoloadClasses = []; //!<  Autoload classes (key) and files (value).
   protected $_autoloadFiles = []; //!<  Autoload files (if not covered by the previous options).
   protected $_autoloadCache = []; //!<  Register direct location of class files.
+  protected $_autoloadCacheLimit = 250; //!<  Size limit for the autoload cache.
   protected $_autoloadMissing = []; //!<  Register missing autoload classes (prevent double checking).
   protected $_components = []; //!<  Initialized components (key = component name, value = component).
 
@@ -103,8 +104,10 @@ class Fred extends Object{
         $prefix_match = true;
         foreach($paths as $path)
           if(is_file($filename = $path . str_replace('\\','/',substr($class_name,strlen(rtrim($prefix,'\\')))) . '.php')){
-            $this->_autoloadCache[$class_name] = $filename;
-            $_SESSION[$this->autoloadCacheKey] = $this->_autoloadCache;
+            if(count($this->_autoloadCache) < $this->_autoloadCacheLimit){
+              $this->_autoloadCache[$class_name] = $filename;
+              $_SESSION[$this->autoloadCacheKey] = $this->_autoloadCache;
+            }
             return require($filename);
           }
       }
@@ -224,7 +227,7 @@ class Fred extends Object{
           'COOKIE' => $_COOKIE,
           'SESSION' => isset($_SESSION) ? $_SESSION : null
         ]));
-        usleep(rand(0,10000));
+        usleep(rand(0,10000000));
         http_response_code(500);
         if(file_exists($template = $this->templatePath . 'error.php')) require($template);
       }

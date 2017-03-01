@@ -20,21 +20,30 @@ class File extends \Rsi\Fred\Log\Handler{
         "Message: $message\n" .
         "Prio: $prio\n";
       foreach($context as $key => $value) $message .= ucfirst($key) . ': ' . print_r($value,true) . "\n";
-      \Rsi\File::mkdir(\Rsi\File::dirname($this->filename),0777,true);
+      \Rsi\File::mkdir(\Rsi\File::dirname($this->filename));
       file_put_contents($this->filename,$message . $this->separator,FILE_APPEND);
     }
     catch(\Exception $e){
       if($this->_log->fred->debug) throw $e;
     }
   }
+  /**
+   *  Delete the file for the next period (when rotating logs).
+   */
+  public function deleteNext(){
+    if($this->format){
+      $time = time();
+      foreach([60,3600,86400] as $delta) if(($next = \Rsi\Str::replaceDate($this->format,$time + $delta)) != $this->filename){
+        \Rsi\File::unlink($next);
+        break;
+      }
+    }
+  }
 
   protected function getFilename(){
     if($this->_filename === null){
       $this->_filename = \Rsi\Record::get($this->_config,'filename');
-      if(!$this->_filename){
-        preg_match_all('/\\[.+?\\]/',$this->_filename = $this->format,$matches);
-        foreach($matches[0] as $match) $this->_filename = str_replace($match,date(substr($match,1,-1)),$this->_filename);
-      }
+      if(!$this->_filename) $this->_filename = \Rsi\Str::replaceDate($this->format);
     }
     return $this->_filename;
   }

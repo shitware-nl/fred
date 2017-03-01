@@ -2,7 +2,7 @@
 
 namespace Rsi\Fred\Component;
 
-class Session extends \Rsi\Object{
+class Session{
 
   public $_namespace = [];
 
@@ -14,12 +14,20 @@ class Session extends \Rsi\Object{
     return array_merge($this->_namespace,is_array($key) ? $key : [$key]);
   }
 
-  protected function _get($key){
+  public function get($key){
     return \Rsi\Record::get($_SESSION,$this->key($key));
   }
 
-  protected function _set($key,$value){
+  public function set($key,$value){
     return \Rsi\Record::set($_SESSION,$this->key($key),$value);
+  }
+
+  public function __get($key){
+    return $this->get($key);
+  }
+
+  public function __set($key,$value){
+    $this->set($key,$value);
   }
 
 }
