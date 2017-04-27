@@ -11,6 +11,7 @@ class Def extends Component{
 
   public $boolTrue = 1;
   public $boolFalse = 0;
+  public $charLimit = 128;
 
   protected $_def = null;
 
@@ -28,9 +29,10 @@ class Def extends Component{
       foreach($db->columns($table_name) as $column_name => $column){
         $def = [
           Widget::REQUIRED => (bool)$column['required'],
-          Widget::DEFAULT_VALUE => $column['default']
+          Widget::DEFAULT_VALUE => $column['default'],
+          'primary' => (bool)$column['primary'],
+          'ref' => $column['ref']
         ];
-        if($column['primary']) $def['primary'] = true;
         $type = $column['type'];
         if(substr($type,-3) == 'int'){
           $def['type'] = 'number';
@@ -42,7 +44,7 @@ class Def extends Component{
         }
         else switch($type){
           case 'varchar':
-            $def['type'] = $column['length'] > 128 ? 'memo' : 'char';
+            $def['type'] = $column['length'] > $this->charLimit ? 'memo' : 'char';
             $def[Widget::MAX] = (int)$column['length'];
             break;
           case 'decimal':
@@ -106,6 +108,16 @@ class Def extends Component{
     return $def;
   }
   /**
+   *  Definition value.
+   *  @param string $table  Table name.
+   *  @param string $column  Column name.
+   *  @param string $key  Key of value.
+   *  @param mixed $default  Default value if key not present in definition.
+   */
+  public function value($table,$column,$key,$default = null){
+    return \Rsi\Record::get($this->column($table,$column),$key,$default);
+  }
+  /**
    *  Get the base (referenced) column.
    *  @param string $table
    *  @param string $column
@@ -125,7 +137,7 @@ class Def extends Component{
    *  @return mixed  Value in standard, internal format.
    */
   public function convert($type,$value){
-    switch($type){
+    if($value !== null) switch($type){
       case 'bool': return $value == $this->boolTrue;
       case 'number': return $value + 0;
     }

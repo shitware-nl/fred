@@ -21,8 +21,8 @@ class Event extends Component{
    *  Trigger an event.
    *  @param string $name  Name of the event (usually with a class name prefix).
    *  @param object $sender,...  The initiator of the event, and other parameters for the callback function.
-   *  @return mixed  Return value of if one of the callbacks returned something other than null (this will also directly stop
-   *    the chain). Returns null if none of the callbacks functions (if any) returned anything other than null.
+   *  @return mixed  Return value if one of the callbacks returned something other than null (this will also directly stop the
+   *    chain). Returns null if none of the callbacks functions (if any) returned anything other than null.
    */
   public function trigger($name,$sender = null){
     $params = func_get_args();

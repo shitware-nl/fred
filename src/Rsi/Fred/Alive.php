@@ -40,7 +40,7 @@ class Alive extends Component{
       if($ping = $this->session->ping) foreach($ping as $name) $this->_fred->component($name)->ping();
       return null;
     }
-    $this->component('user')->id = null;
+    $this->component('user')->invalidate();
     $this->session->start = false;
     return $this->router->reverse($this->front->defaultControllerName);
   }

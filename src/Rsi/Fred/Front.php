@@ -16,6 +16,17 @@ class Front extends Component{
   public $deniedControllerName = 'Denied';
 
   /**
+   *  Name for a controller by class name.
+   *  @param string $class_name  Class name for the controller.
+   *  @return string  Controller name.
+   */
+  public function controllerName($class_name){
+    foreach($this->controllerNamespaces as $namespace => $prefix)
+      if(($class_name == $namespace) || \Rsi\Str::startsWith($class_name,$namespace))
+        return $prefix . str_replace('\\','/',substr($class_name,strlen($namespace)));
+    return null;
+  }
+  /**
    *  Class name for a controller.
    *  @param string $name  Controller name.
    *  @return string  Class name for the controller.
@@ -23,7 +34,7 @@ class Front extends Component{
   public function controllerClassName($name){
     $class_name = null;
     foreach($this->controllerNamespaces + [null => null] as $namespace => $prefix) if(
-      (!$prefix || \Rsi\Str::startsWith($name,$prefix . '/')) &&
+      (!$prefix || ($name == $prefix) || \Rsi\Str::startsWith($name,$prefix . '/')) &&
       class_exists($class_name = $namespace . str_replace('/','\\',$prefix ? substr($name,strlen($prefix)) : '\\' . $name))
     ) break;
     return $class_name;

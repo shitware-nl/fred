@@ -83,6 +83,10 @@ class Html extends Component{
     return $this->tag('select',$content,array_merge(['name' => $name],$attribs ?: []));
   }
 
+  public function span($content,$attribs = null,$class = null,$id = null){
+    return $this->tag('span',$content,array_merge(['class' => $class,'id' => $id],$attribs ?: []));
+  }
+
   public function style($content,$attribs = null,$srcs = null,$type = 'text/css'){
     if(!$srcs) return $this->tag('style',$content,$attribs);
     if(!is_array($srcs)) $srcs = [$srcs];

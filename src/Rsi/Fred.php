@@ -66,7 +66,6 @@ class Fred extends Object{
   protected function init(){
     $this->configure($this->_config);
     ini_set('display_errors',$this->debug);
-    if(!preg_match('/^[\\w,\\-]{0,100}$/',session_id())) exit('Invalid session');
     set_error_handler([$this,'errorHandler']);
     set_exception_handler([$this,'exceptionHandler']);
     register_shutdown_function([$this,'shutdownFunction']);
@@ -120,14 +119,6 @@ class Fred extends Object{
         $_SESSION[$this->autoloadMissingKey] = $this->_autoloadMissing;
       }
     }
-  }
-  /**
-   *  Error handler.
-   *  Throws an exception to get a unified error handling. Errors that are suppressed are only logged.
-   */
-  public function errorHandler($error_no,$message,$filename,$line_no,$context = null){
-    if(error_reporting()) throw new \ErrorException($message,$error_no,0,$filename,$line_no);
-    elseif($this->_initialized) $this->log->error($message,$filename,$line_no);
   }
   /**
    *  End the request.
@@ -208,8 +199,8 @@ class Fred extends Object{
       if($this->_internalError){
         if($this->debug){
           print("<pre>\n\n$message ($filename:$line_no)\n\n");
-          print_r($trace);
-          print_r($objects);
+          print_r($trace ?: null);
+          print_r($objects ?: null);
         }
         exit('Internal error');
       }
@@ -221,7 +212,7 @@ class Fred extends Object{
           'lineNo' => $line_no,
           'trace' => $trace,
           'objects' => $objects,
-          'headers' => getallheaders(),
+          'headers' => function_exists('getallheaders') ? getallheaders() : null,
           'GET' => $_GET,
           'POST' => $_POST,
           'COOKIE' => $_COOKIE,
@@ -241,6 +232,14 @@ class Fred extends Object{
     catch(\Exception $e){ //the default exception handler is not called again on an unhandled exception
       $this->internalError($e->getMessage(),$e->getFile(),$e->getLine(),$e->getTrace());
     }
+  }
+  /**
+   *  Error handler.
+   *  Throws an exception to get a unified error handling. Errors that are suppressed are only logged.
+   */
+  public function errorHandler($error_no,$message,$filename,$line_no,$context = null){
+    if(error_reporting()) throw new \ErrorException($message,$error_no,0,$filename,$line_no);
+    elseif($this->_initialized) $this->log->error($message,$filename,$line_no);
   }
   /**
    *  Exception handler.

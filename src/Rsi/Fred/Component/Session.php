@@ -22,6 +22,10 @@ class Session{
     return \Rsi\Record::set($_SESSION,$this->key($key),$value);
   }
 
+  public function delete($key){
+    \Rsi\Record::delete($_SESSION,$this->key($key));
+  }
+
   public function __get($key){
     return $this->get($key);
   }

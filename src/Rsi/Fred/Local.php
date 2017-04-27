@@ -79,6 +79,14 @@ class Local extends Component{
     return round(strtr($value,[$this->thousandsSeparator => '',$this->decimalPoint => '.']),$decimals);
   }
 
+  public function formatSpellOut($value,$locale = null,$format = null){
+    return \Rsi\Str::transform((new \NumberFormatter($locale,\NumberFormatter::SPELLOUT))->format($value),$format);
+  }
+
+  public function formatRoman($value){
+    return \Rsi::romanNumber($value) ?: $value;
+  }
+
   public function formatBytes($value,$decimals = 1){
     return \Rsi::formatBytes($value,$decimals,$this->decimalPoint,$this->thousandsSeparator);
   }

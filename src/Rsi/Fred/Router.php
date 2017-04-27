@@ -28,23 +28,19 @@ class Router extends Component{
       if($this->_viewType = strtolower(pathinfo($this->_controllerName,PATHINFO_EXTENSION)))
         $this->_controllerName = substr($this->_controllerName,0,-(1 + strlen($this->_viewType)));
       foreach($this->routes as $route => $controller_name){
-        $mask = '/^' . str_replace('/','\\/',$route) . '$/i';
-        if(preg_match_all('/\\[(.+?)(:.+?)?\\]/',$route,$params,PREG_SET_ORDER)) foreach($params as $param) //parameters in the route
-          $mask = str_replace(str_replace('/','\\/',$param[0]),'(' . (count($param) > 2 ? substr($param[2],1) : '.*?') . ')',$mask);
+        $mask = '/^' . ($route = str_replace('/','\\/',$route)) . '$/i';
+        if(preg_match_all('/\\[(.+?)(|:.+?)\\]/',$route,$params,PREG_SET_ORDER)) //parameters in the route
+          foreach($params as list($full,$key,$regex)) $mask = str_replace($full,"(?<$key>" . (substr($regex,1) ?: '.*?') . ')',$mask);
         if(preg_match($mask,$this->_controllerName,$values)){ //path fits this route
-          foreach($params as $index => $param){
-            $_GET[$key = $param[1]] = $value = $values[$index + 1]; //copy parameter value
+          foreach($params as list($full,$key)){
+            $_GET[$key] = $value = $values[$key]; //copy parameter value
             if(preg_match('/^\\w+$/',$value)) $controller_name = str_replace("[$key]",$value,$controller_name);
           }
-          if($index = strpos($controller_name,'?')){
-            parse_str(substr($controller_name,$index + 1),$extra);
+          if($extra = \Rsi\Str::pop($controller_name,'?')){
+            parse_str($extra,$extra);
             $_POST = array_merge($_POST,$extra);
-            $controller_name = substr($controller_name,0,$index);
           }
-          if($index = strpos($controller_name,'#')){
-            $_POST['action'] = substr($controller_name,$index + 1);
-            $controller_name = substr($controller_name,0,$index);
-          }
+          if($action = \Rsi\Str::pop($controller_name,'#')) $_POST['action'] = $action;
           $this->_controllerName = $controller_name;
           return;
         }

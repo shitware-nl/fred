@@ -6,6 +6,7 @@ class Mail extends Component{
 
   public $defaultFrom = null;
   public $restrict = []; //!<  Regular expressions that the e-mail address has to match (at least one; empty = allow all).
+  public $strict = []; //!<  Regular expressions for domains that can not be used in the From header.
   public $markup = ['b' => '*','i' => '/','u' => '_'];
 
   protected $_mailer = null;
@@ -39,9 +40,9 @@ class Mail extends Component{
   public function stripTags($body){
     foreach($this->markup as $tag => $char) $body = preg_replace("/(<$tag.*?>|<\\/$tag>)/",$char,$body);
     if(preg_match_all('/<a.*?href\s*=\s*([^\s>]+).*?>(.*?)<\\/a>/',$body,$matches,PREG_SET_ORDER))
-      foreach($matches as $match){
-        $link = \Rsi\Str::StripQuotes($match[1]);
-        $body = str_replace($match[0],$match[2] . ($link == $match[2] ? '' : " ($link)"),$body);
+      foreach($matches as list($full,$link,$descr)){
+        $link = \Rsi\Str::StripQuotes($link);
+        $body = str_replace($full,$descr . ($link == $descr ? '' : " ($link)"),$body);
       }
     return strip_tags($body);
   }
@@ -55,6 +56,12 @@ class Mail extends Component{
    */
   public function message($from = null,$to = null,$subject = null,$body = null,$html = false){
     $message = new \Swift_Message();
+    if($from) foreach($this->strict as $filter)
+      if(preg_match(substr($filter,0,1) == '/' ? $filter : '/' . preg_quote($filter,'/') . '/',$from)){
+        $message->setReplyTo($from);
+        $from = null;
+        break;
+      }
     $message->setFrom($from ?: ($this->defaultFrom ?: ini_get('sendmail_from')));
     $message->setTo($to);
     if($subject) $message->setSubject($subject);

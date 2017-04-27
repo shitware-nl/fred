@@ -49,6 +49,19 @@ class Object{
       elseif(property_exists($this,$property = '_' . $key) && !method_exists($this,'get' . ucfirst($key))) $this->$property = $value;
   }
   /**
+   *  Return all constants.
+   *  @param string $prefix  Only constants starting with this prefix.
+   *  @return array  Key = constant name (without prefix), value = constant value.
+   */
+  public function constants($prefix = null){
+    $reflect = new \ReflectionClass($this);
+    $length = strlen($prefix);
+    $constants = [];
+    foreach($reflect->getConstants() as $name => $value) if(!$prefix || substr($name,0,$length) == $prefix)
+      $constants[substr($name,$length)] = $value;
+    return $constants;
+  }
+  /**
    *  Default getter if no specific setter is defined, and the property is also not published (readable).
    *  @param string $key  Name of the property.
    *  @return mixed  Value.
