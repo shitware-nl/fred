@@ -8,16 +8,12 @@ class Mem extends \Rsi\Fred\Log\Handler{
   public $maxSize = 1024; //!<  Maximum number of messages to store (empty = unlimited).
   public $save = null; //!<  Number of logs to save.
   public $filename = null; //!<  Filename to store logs.
+  public $mode = 0666;
 
   public function add($prio,$message,$context){
     if($this->maxSize && (count($this->messages) >= $this->maxSize))
       $this->messages = array_slice($this->messages,$this->maxSize >> 1);
-    $this->messages[] = [
-      'time' => microtime(true),
-      'prio' => $prio,
-      'message' => $message,
-      'context' => $context
-    ];
+    $this->messages[] = ['time' => microtime(true)] + compact('prio','message','context');
   }
 
   protected function init(){
@@ -41,9 +37,9 @@ class Mem extends \Rsi\Fred\Log\Handler{
       $log['db'] = ['count' => $db->queryCount,'time' => $db->queryTime];
     }
     if(!$this->filename) $this->filename = \Rsi\File::tempDir() . 'log.dat';
-    $logs = array_slice(\Rsi\File::unserialize($this->filename,[]),1 - $this->save);
+    $logs = array_slice(\Rsi\File::unserialize($this->filename,[]) ?: [],1 - $this->save);
     $logs[] = $log;
-    \Rsi\File::serialize($this->filename,$logs);
+    \Rsi\File::serialize($this->filename,$logs,$this->mode);
   }
 
 }

@@ -13,11 +13,11 @@ class Mail extends File{
 
   public function send(){
     $result = null;
-    if($message = file_get_contents($this->filename,false,null,0,$this->maxSize)) try{
-      if(($extra = filesize($this->filename) - $this->maxSize) > 0)
-        $message = substr($message,0,$this->maxSize) . "\n\nand $extra more bytes";
-      file_put_contents($this->filename,null);
-      file_put_contents($this->timeFilename,date('c'));
+    if($size = filesize($this->filename)) try{
+      $message = file_get_contents($this->filename,false,null,max(0,$extra = $size - $this->maxSize));
+      \Rsi\File::write($this->filename,null);
+      \Rsi\File::write($this->timeFilename,date('c'),0666);
+      if($extra > 0) $message = "Skipped $extra bytes\n\n" . $message;
       $result = $this->_log->fred->mail->send(null,$this->to ?: ini_get('sendmail_from'),$this->subject,$message);
     }
     catch(\Rsi\Fred\Exception $e){

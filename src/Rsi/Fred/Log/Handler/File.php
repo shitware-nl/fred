@@ -21,7 +21,7 @@ class File extends \Rsi\Fred\Log\Handler{
         "Prio: $prio\n";
       foreach($context as $key => $value) $message .= ucfirst($key) . ': ' . print_r($value,true) . "\n";
       \Rsi\File::mkdir(\Rsi\File::dirname($this->filename));
-      file_put_contents($this->filename,$message . $this->separator,FILE_APPEND);
+      \Rsi\File::write($this->filename,$message . $this->separator,0666,true);
     }
     catch(\Exception $e){
       if($this->_log->fred->debug) throw $e;

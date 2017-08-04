@@ -32,7 +32,7 @@ class Component extends \Rsi\Object{
    */
   public function clientConfig(){
     if($config = $this->config('client')) foreach($config as $key => &$value)
-      if(is_string($value)) $value = $this->_fred->trans->str($value);
+      if(is_string($value)) $value = $this->component('trans')->str($value);
     unset($value);
     return $config ?: [];
   }

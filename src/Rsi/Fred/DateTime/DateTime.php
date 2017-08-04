@@ -32,8 +32,13 @@ class DateTime extends \DateTime{
     return $this;
   }
 
-  public function setTime($hour,$minute,$second = 0){
-    parent::setTime($hour === null ? $this->hour : $hour,$minute === null ? $this->minute : $minute,$second === null ? $this->second : $second);
+  public function setTime($hour,$minute,$second = 0,$microseconds = 0){
+    parent::setTime(
+      $hour === null ? $this->hour : $hour,
+      $minute === null ? $this->minute : $minute,
+      $second === null ? $this->second : $second,
+      $microseconds === null ? $this->microseconds : $microseconds
+    );
     return $this;
   }
 
